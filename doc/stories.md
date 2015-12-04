@@ -1,5 +1,5 @@
 Stories:
-0. can start and stop web server, and server hello world
+[DONE] 0. can start and stop web server, and server hello world, have capability to read config
 1. can reverse-proxy GET
 2. can reverse-proxy ANY method
 3. can collect Endpoint facts (protocol, method, uri)
