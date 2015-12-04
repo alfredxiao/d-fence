@@ -2,10 +2,18 @@
   (:require [org.httpkit.server :as http-server]
             [org.httpkit.client :as http-client]))
 
+(defn extract-incoming-facts [incoming-req]
+  {})
 
+(defn transform-url [{:keys [scheme host port]} {:keys [uri]}]
+  (str scheme "://" host ":" port uri))
 
 (defn app [target-config incoming-req]
-  (let [resp @(http-client/get "http://www.simpleweb.org")]
+  (let [incoming-facts (extract-incoming-facts incoming-req)
+        resp @(http-client/request {:url (transform-url target-config incoming-req)
+                                    :method (:request-method incoming-req)
+                                    :headers (:headers incoming-req)
+                                    :body (:body incoming-req)})]
     (if (contains? resp :error)
       {:status 500
        :headers {}

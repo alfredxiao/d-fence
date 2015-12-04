@@ -49,3 +49,9 @@ Built-in Facts
 
 Data Facts (Secretary/Assistant to serve read-only metadata)
 is-staff-member: http://localhost:9000/is-staff-member/{id}  returns true
+
+Not in scope (may change though)
+- websocket
+- binary file
+- streaming
+- redirects

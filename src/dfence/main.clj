@@ -1,8 +1,8 @@
 (ns dfence.main
   (:require [dfence.config :as config]
-            [dfence.web-server :as http-server])
+            [dfence.web-server :as web-server])
   (:gen-class))
 
 (defn -main [& args]
   (let [config (config/get-config!)]
-    (http-server/run-server config)))
+    (web-server/start-server config)))
