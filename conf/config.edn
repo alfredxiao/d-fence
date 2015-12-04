@@ -1,0 +1,9 @@
+{
+  :http-server {:port 8080
+               }
+
+  :target-destination {:target-protocol "http"
+                       :target-host "www.w3schools.com"
+                       :target-port 80
+                      }
+}
