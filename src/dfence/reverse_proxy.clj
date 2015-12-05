@@ -1,18 +1,33 @@
 (ns dfence.reverse-proxy
-  (:require [org.httpkit.client :as http-client]))
+  (:require [org.httpkit.client :as http-client]
+            [dfence.utils :refer :all]
+            [clojure.string :refer [lower-case]]))
 
-(defn forward-request [url method headers body]
-  (let [resp @(http-client/request {:url url
-                                    :method method
-                                    :headers headers
-                                    :body body})]
-    (if (contains? resp :error)
+(defn- convert-header-name [keywordized-name]
+  (-> keywordized-name
+      clojure.core/name
+      capitalise-all-words))
+
+(defn- convert-headers [headers]
+  (into {} (for [[k v] headers]
+             [(convert-header-name k) v])))
+
+(defn- filter-headers [headers]
+  (-> headers
+      (dissoc "Transfer-Encoding" "Content-Length" "Content-Encoding")))
+
+(defn forward-request [url method outgoing-headers outgoing-body]
+  (let [{:keys [error status headers body]} @(http-client/request {:url url
+                                                                   :method method
+                                                                   :headers outgoing-headers
+                                                                   :body outgoing-body
+                                                                   :as :stream})]
+    (if error
       {:status 500
        :headers {}
-       :body (str (:error resp))}
-      {:status  (:status resp)
-       :headers {}
-       :body    (:body resp)}
-      )
-    )
-  )
+       :body (str "dfence failed to forward request to target destination, and error message is: " error)}
+      {:status status
+       :headers (-> headers
+                    convert-headers
+                    filter-headers)
+       :body body})))
