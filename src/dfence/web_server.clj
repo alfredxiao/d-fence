@@ -6,13 +6,14 @@
   {})
 
 (defn transform-url [{:keys [scheme host port]} {:keys [uri]}]
-  (str scheme "://" host ":" port uri))
+  (str scheme "://" host (when (not (= 80 port)) (str ":" port)) uri))
 
 (defn app [target-config incoming-req]
   (let [incoming-facts (extract-incoming-facts incoming-req)
+        outgoing-headers (assoc (:headers incoming-req) "host" (:host target-config))
         resp @(http-client/request {:url (transform-url target-config incoming-req)
                                     :method (:request-method incoming-req)
-                                    :headers (:headers incoming-req)
+                                    :headers outgoing-headers
                                     :body (:body incoming-req)})]
     (if (contains? resp :error)
       {:status 500

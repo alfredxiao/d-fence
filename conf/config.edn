@@ -3,7 +3,7 @@
                }
 
   :target-destination {:scheme "http"
-                       :host "localhost"
-                       :port 3449
+                       :host "www.simpleweb.org"
+                       :port 80
                       }
 }
