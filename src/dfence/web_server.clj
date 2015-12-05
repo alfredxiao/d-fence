@@ -1,28 +1,20 @@
 (ns dfence.web-server
   (:require [org.httpkit.server :as http-server]
-            [org.httpkit.client :as http-client]))
-
-(defn extract-incoming-facts [incoming-req]
-  {})
+            [dfence.fact-parser :as facts]
+            [dfence.reverse-proxy :as proxy]))
 
 (defn transform-url [{:keys [scheme host port]} {:keys [uri]}]
   (str scheme "://" host (when (not (= 80 port)) (str ":" port)) uri))
 
-(defn app [target-config incoming-req]
-  (let [incoming-facts (extract-incoming-facts incoming-req)
-        outgoing-headers (assoc (:headers incoming-req) "host" (:host target-config))
-        resp @(http-client/request {:url (transform-url target-config incoming-req)
-                                    :method (:request-method incoming-req)
-                                    :headers outgoing-headers
-                                    :body (:body incoming-req)})]
-    (if (contains? resp :error)
-      {:status 500
-       :headers {}
-       :body (str (:error resp))}
-      {:status  (:status resp)
-       :headers {}
-       :body    (:body resp)}
-  )))
+(defn app-handler [target-config incoming-req]
+  (let [incoming-facts (facts/extract-incoming-facts incoming-req)
+        outgoing-url (transform-url target-config incoming-req)
+        outgoing-headers (assoc (:headers incoming-req) "host" (:host target-config))]
+    (proxy/forward-request outgoing-url
+                           (:request-method incoming-req)
+                           outgoing-headers
+                           (:body incoming-req))
+    ))
 
 (defonce server (atom nil))
 
@@ -32,5 +24,5 @@
     (reset! server nil)))
 
 (defn start-server [config]
-  (reset! server (http-server/run-server (partial app (:target-destination config))
+  (reset! server (http-server/run-server (partial app-handler (:target-destination config))
                                          (:http-server config))))
