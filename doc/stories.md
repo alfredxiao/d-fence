@@ -2,7 +2,7 @@ Stories:
 [DONE] 0. can start and stop web server, and server hello world, have capability to read config
 [DONE] 1. can reverse-proxy GET
 [DONE] 2. can reverse-proxy ANY method
-3. can collect Endpoint facts (protocol, method, uri)
+[DONE] 3. can collect incoming request facts (protocol, method, uri)
 4. can collect Request facts from token (username, role, ip, time, date)
 5. default rule (to deny if no rules are defined)
 6. can parse a default rule (default to deny or grant as specified/configured)
