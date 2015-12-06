@@ -10,7 +10,7 @@
 (defn- prepare-outgoing-headers [incoming-headers target-config]
   (cond-> incoming-headers
           true (assoc "host" (:host target-config))
-          (= "application/x-www-form-urlencoded" (get incoming-headers "content-type")) (dissoc "content-length")))
+          true (dissoc "content-length")))
 
 (defn- convert-response-header-name [keywordized-name]
   (-> keywordized-name

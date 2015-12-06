@@ -4,8 +4,8 @@
                   :host "localhost"
                  }
 
-  :api-server {:scheme "http"
-               :host "www.simpleweb.org"
-               :port 80
+  :api-server {:scheme "https"
+               :host "httpbin.org"
+               :port 443
                }
 }
