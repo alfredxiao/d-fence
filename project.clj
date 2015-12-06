@@ -6,6 +6,7 @@
   :dependencies [[org.clojure/clojure "1.7.0"]
                  [environ "1.0.1"]
                  [clj-http "2.0.0"]
-                 [ring/ring-jetty-adapter "1.4.0"]]
+                 [ring/ring-jetty-adapter "1.4.0"]
+                 [com.cemerick/url "0.1.1"]]
   :main ^:skip-aot dfence.main
 )

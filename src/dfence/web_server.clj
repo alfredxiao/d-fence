@@ -3,36 +3,27 @@
             [dfence.fact-parser :as facts]
             [dfence.reverse-proxy :as proxy]))
 
-(defn transform-url [{:keys [scheme host port]} {:keys [uri]}]
-  (str scheme "://" host (when (not (= 80 port)) (str ":" port)) uri))
-
-(defn app-handler [target-config incoming-req]
-  (let [incoming-facts (facts/extract-incoming-facts incoming-req)
-        outgoing-url (transform-url target-config incoming-req)
-        outgoing-headers (assoc (:headers incoming-req) "host" (:host target-config))]
-    (proxy/forward-request outgoing-url
-                           (:request-method incoming-req)
-                           outgoing-headers
-                           (:body incoming-req))
-    ))
+(defn app-handler [config incoming-req]
+  (proxy/forward-request incoming-req
+                         config))
 
 (defonce server (atom nil))
 
 (defn stop-jetty []
   (when @server
-    (prn "Stopping jetty server...")
+    (prn "Stopping dfence server...")
     (.stop @server)
     (reset! server nil)
-    (prn "Jetty server stopped.")))
+    (prn "dfence server stopped.")))
 
-(defn start-jetty [{:keys [target-destination http-server]}]
-  (prn "Starting jetty server...")
+(defn start-jetty [{:keys [dfence-server] :as config}]
+  (prn "Starting dfence server (which is jetty)...")
   (reset! server
           (run-jetty
-            (partial app-handler target-destination)
+            (partial app-handler config)
             { :join? false
               :ssl? false
               :host "localhost"
-              :port (:port http-server)
+              :port (:port dfence-server)
              }))
-  (prn "Jetty server started."))
+  (prn "dfence server started."))

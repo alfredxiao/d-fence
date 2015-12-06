@@ -1,9 +1,11 @@
 {
-  :http-server {:port 8080
-               }
+  :dfence-server {:scheme "http"
+                  :port 8080
+                  :host "localhost"
+                 }
 
-  :target-destination {:scheme "http"
-                       :host "www.simpleweb.org"
-                       :port 80
-                      }
+  :api-server {:scheme "http"
+               :host "www.simpleweb.org"
+               :port 80
+               }
 }
