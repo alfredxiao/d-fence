@@ -7,6 +7,7 @@
                  [environ "1.0.1"]
                  [clj-http "2.0.0"]
                  [ring/ring-jetty-adapter "1.4.0"]
-                 [com.cemerick/url "0.1.1"]]
+                 [com.cemerick/url "0.1.1"]
+                 [clj-time "0.11.0"]]
   :main ^:skip-aot dfence.main
 )
