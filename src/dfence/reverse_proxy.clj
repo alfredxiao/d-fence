@@ -45,7 +45,7 @@
     (if error
       {:status 500
        :headers {}
-       :body (str "dfence failed to forward request to target destination, and error message is: " error)}
+       :body (str "dfence failed to forward request to api server at " (:host api-server) ":" (:port api-server) ", and error message is: " error)}
       {:status status
        :headers (prepare-response-headers headers config)
        :body body})))
