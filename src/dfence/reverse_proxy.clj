@@ -1,5 +1,5 @@
 (ns dfence.reverse-proxy
-  (:require [org.httpkit.client :as http-client]
+  (:require [clj-http.client :as client]
             [dfence.utils :refer :all]
             [clojure.string :refer [lower-case]]))
 
@@ -17,11 +17,12 @@
       (dissoc "Transfer-Encoding" "Content-Length" "Content-Encoding")))
 
 (defn forward-request [url method outgoing-headers outgoing-body]
-  (let [{:keys [error status headers body]} @(http-client/request {:url url
-                                                                   :method method
-                                                                   :headers outgoing-headers
-                                                                   :body outgoing-body
-                                                                   :as :stream})]
+  (let [{:keys [error status headers body]} (client/request {:url url
+                                                             :method method
+                                                             :headers outgoing-headers
+                                                             :body outgoing-body
+                                                             :throw-exceptions false
+                                                             :as :stream})]
     (if error
       {:status 500
        :headers {}

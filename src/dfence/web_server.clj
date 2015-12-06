@@ -1,5 +1,5 @@
 (ns dfence.web-server
-  (:require [org.httpkit.server :as http-server]
+  (:require [ring.adapter.jetty :refer [run-jetty]]
             [dfence.fact-parser :as facts]
             [dfence.reverse-proxy :as proxy]))
 
@@ -18,11 +18,21 @@
 
 (defonce server (atom nil))
 
-(defn stop-server []
-  (when-not (nil? @server)
-    (@server :timeout 100)
-    (reset! server nil)))
+(defn stop-jetty []
+  (when @server
+    (prn "Stopping jetty server...")
+    (.stop @server)
+    (reset! server nil)
+    (prn "Jetty server stopped.")))
 
-(defn start-server [config]
-  (reset! server (http-server/run-server (partial app-handler (:target-destination config))
-                                         (:http-server config))))
+(defn start-jetty [{:keys [target-destination http-server]}]
+  (prn "Starting jetty server...")
+  (reset! server
+          (run-jetty
+            (partial app-handler target-destination)
+            { :join? false
+              :ssl? false
+              :host "localhost"
+              :port (:port http-server)
+             }))
+  (prn "Jetty server started."))
