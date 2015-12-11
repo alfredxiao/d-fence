@@ -1,11 +1,13 @@
 {
-  :dfence-server {:scheme "http"
-                  :port 8080
-                  :host "localhost"
+ :dfence-server {:scheme            "http"
+                 :port              8080
+                 :host              "localhost"
+                 :message-forbidden "Access Denied"
+                 :message-unauthenticated   "Authentication Required"
                  }
 
-  :api-server {:scheme "https"
-               :host "httpbin.org"
-               :port 443
-               }
-}
+ :api-server    {:scheme "https"
+                 :host   "httpbin.org"
+                 :port   443
+                 }
+ }

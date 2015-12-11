@@ -3,6 +3,9 @@ Stories:
 [DONE] 1. can reverse-proxy GET
 [DONE] 2. can reverse-proxy ANY method
 [DONE] 3. can collect incoming request facts (protocol, method, uri, ip, time, date, weekday)
+[DONE] 4. parse rules with primitives (e.g. has-valid-token, is-service)
+[DONE] 5. evaluate rules with regard to primitives (comparing those in rules and those from facts)
+
 4. can collect Request facts from token (username, role)
 5. default rule (to deny if no rules are defined)
 6. can parse a default rule (default to deny or grant as specified/configured)

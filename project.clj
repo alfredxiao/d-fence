@@ -8,6 +8,9 @@
                  [clj-http "2.0.0"]
                  [ring/ring-jetty-adapter "1.4.0"]
                  [com.cemerick/url "0.1.1"]
-                 [clj-time "0.11.0"]]
+                 [clj-time "0.11.0"]
+                 [org.clojure/data.csv "0.1.3"]
+                 ;[com.nimbusds/nimbus-jose-jwt "3.6"]
+                 ]
   :main ^:skip-aot dfence.main
 )

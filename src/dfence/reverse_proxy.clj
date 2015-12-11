@@ -21,13 +21,13 @@
   (into {} (for [[k v] headers]
              [(convert-response-header-name k) v])))
 
-(defn- new-location [{:keys [scheme host port]} old-location]
-  (new-url old-location scheme host port))
+(defn- replace-with-dfence-server-location [{:keys [scheme host port]} old-location]
+  (replace-url-parts old-location scheme host port))
 
 (defn- convert-location-if-moved-permanently [config headers]
   (update-when headers
                "Location"
-               (partial new-location (:dfence-server config))))
+               (partial replace-with-dfence-server-location (:dfence-server config))))
 
 (defn- prepare-response-headers [headers config]
   (convert-location-if-moved-permanently config
