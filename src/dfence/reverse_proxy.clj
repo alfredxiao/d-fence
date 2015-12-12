@@ -1,7 +1,6 @@
 (ns dfence.reverse-proxy
   (:require [clj-http.client :as client]
-            [dfence.utils :refer :all]
-            [cemerick.url :refer [url]]))
+            [dfence.utils :refer :all]))
 
 (defn transform-url [{:keys [scheme host port]} {:keys [uri query-string]}]
   (cond-> (str scheme "://" host (when (not (= 80 port)) (str ":" port)) uri)

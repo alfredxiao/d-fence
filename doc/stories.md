@@ -6,6 +6,7 @@ Stories:
 [DONE] 4. parse rules with primitives (e.g. has-valid-token, is-service)
 [DONE] 5. evaluate rules with regard to primitives (comparing those in rules and those from facts)
 [DONE] 6. fix bug where we replace Location only when it matches backend host/port
+[DONE] 7. remove dependency on cemerick.url
 
 4. can collect Request facts from token (username, role)
 5. default rule (to deny if no rules are defined)

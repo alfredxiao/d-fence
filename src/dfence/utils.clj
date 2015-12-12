@@ -1,7 +1,7 @@
 (ns dfence.utils
   (:require [clojure.string :as string]
-            [cemerick.url :refer [url]]
-            [clojure.string :refer [lower-case]]))
+            [clojure.string :refer [lower-case]])
+  (:import (java.net URL)))
 
 (defn capitalise-all-words
   [s]
@@ -21,9 +21,15 @@
                                   replace-with)
     url))
 
+(defn- parse-url [url]
+  (let [url-obj (URL. url)]
+    {:protocl (.getProtocol url-obj)
+     :host    (.getHost url-obj)}
+     :port    (.getPort url-obj)))
+
 (defn location-matches? [test-scheme test-host test-port location]
   (when (not (empty? location))
-    (let [{:keys [protocol host port]} (url location)]
+    (let [{:keys [protocol host port]} (parse-url location)]
       (and (= (lower-case test-scheme) protocol)
            (= (lower-case test-host) host)
            (or (= test-port port)
@@ -31,7 +37,7 @@
                     (= 80 test-port)))))))
 
 (defn generate-new-location [location new-protocol new-host new-port]
-  (let [{:keys [protocol host port]} (url location)]
+  (let [{:keys [protocol host port]} (parse-url location)]
     (cond-> location
             (empty? protocol)         #(str new-protocol %)
             (not (empty? protocol))   (replace-first-with protocol new-protocol)
