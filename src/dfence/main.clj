@@ -9,5 +9,5 @@
 
 (defn -main [& args]
   (let [config (load-config! (environ/env "config-file" "./conf/config.edn"))
-        rules (rule-parser/parse! (environ/env "rule-file" "./conf/dfence-rules.csv"))]
+        rules (rule-parser/parse-rule-set! (environ/env "rule-file" "./conf/dfence-rules.csv"))]
     (web-server/start-jetty config rules)))

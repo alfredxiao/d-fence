@@ -1,6 +1,7 @@
 (ns dfence.rule
   (:require [clojure.data.csv :as csv]
-            [clojure.java.io :as io]))
+            [clojure.java.io :as io]
+            [clojure.string :refer [upper-case lower-case]]))
 
 ; logically, a rule set consists of
 ; an ordered list of rules, each of which consists of
@@ -16,18 +17,25 @@
     (doall
       (csv/read-csv in-file))))
 
-(defn- parse-rule [term-names rule]
-  (zipmap (assoc term-names
-            0 :method
-            1 :uri)
-          rule))
+(defn- extract-value [term]
+  (when (contains? #{"Y" "YES" "X" "TRUE"} (upper-case (str term)))
+    true))
 
-(defn- parse [[term-names & rules]]
-  (map (partial parse-rule term-names)
+(defn- to-primitive [term-name]
+  (-> term-name lower-case keyword))
+
+(defn- parse-rule [[_ _ & names] [method uri & terms]]
+  (merge {:method method
+          :uri uri}
+         (zipmap (map to-primitive names)
+                 (map extract-value terms))))
+
+(defn- parse-rule-set [[names & rules]]
+  (map (partial parse-rule names)
        (take-while #(-> %
                         first
                         (not= ""))
                    rules)))
 
-(defn parse! [filepath]
-  (parse (read-csv-file filepath)))
+(defn parse-rule-set! [filepath]
+  (parse-rule-set (read-csv-file filepath)))

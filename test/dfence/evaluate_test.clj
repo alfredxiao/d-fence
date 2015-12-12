@@ -2,12 +2,12 @@
   (:require [clojure.test :refer :all]
             [dfence.evaluate :as subject]))
 
-(def any-ip-rule    {:method "*"       :uri "/ip"           :has-valid-token true})
-(def post-rule-a    {:method "POST"    :uri "/post/typea"   :is-service true})
-(def put-rule       {:method "PUT"     :uri "/put/*/data"   :is-service true})
-(def delete-rule    {:method "DELETE"  :uri "/delete/a?"    :is-service true})
+(def any-ip-rule    {:method "*"       :uri "/ip"           :is-service nil  :has-valid-token true})
+(def post-rule      {:method "POST"    :uri "/post/typea"   :is-service true :has-valid-token nil})
+(def put-rule       {:method "PUT"     :uri "/put/*/data"   :is-service true :has-valid-token nil})
+(def delete-rule    {:method "DELETE"  :uri "/delete/a?"    :is-service true :has-valid-token nil})
 
-(def sample-rules [any-ip-rule post-rule-a put-rule delete-rule])
+(def sample-rules [any-ip-rule post-rule put-rule delete-rule])
 
 (testing "Relevant rules"
   (are [matched-rules request-method request-uri] (= matched-rules (#'subject/relevant-rules sample-rules request-method request-uri))
@@ -18,10 +18,10 @@
                                                  ))
 (testing "Rule evaluation"
   (are [outcome facts] (= outcome (subject/evaluate-rules sample-rules facts))
-       :deny  {:request-method "GET"   :request-uri "/ip"           :primitives {:has-valid-token false}}
-       :allow {:request-method "GET"   :request-uri "/ip"           :primitives {:has-valid-token true}}
-       :allow {:request-method "POST"  :request-uri "/post/typea"   :primitives {:has-valid-token true  :is-service true }}
-       :deny  {:request-method "POST"  :request-uri "/post/typea"   :primitives {:has-valid-token true  :is-service false }}
-       :deny  {:request-method "POST"  :request-uri "/post/typea"   :primitives {:has-valid-token false :is-service true }}
-       :deny  {:request-method "PUT"   :request-uri "/put/123/data" :primitives {:has-valid-token true  :is-service false}}))
+       :authentication-required {:request-method "GET"   :request-uri "/ip"           :primitives {:has-valid-token false :is-service nil}}
+       :allow                   {:request-method "GET"   :request-uri "/ip"           :primitives {:has-valid-token true  :is-service nil}}
+       :allow                   {:request-method "POST"  :request-uri "/post/typea"   :primitives {:has-valid-token true  :is-service true }}
+       :access-denied           {:request-method "POST"  :request-uri "/post/typea"   :primitives {:has-valid-token true  :is-service false }}
+       :authentication-required {:request-method "POST"  :request-uri "/post/typea"   :primitives {:has-valid-token false :is-service true }}
+       :access-denied           {:request-method "PUT"   :request-uri "/put/123/data" :primitives {:has-valid-token true  :is-service false}}))
 

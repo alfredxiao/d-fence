@@ -2,7 +2,6 @@
   (:require [dfence.utils :as utils]
             [clojure.set :refer [intersection]]))
 
-
 (defn- is-request-related-to-rule? [request-method request-uri rule]
   (and (utils/matches-pattern? (:method rule) request-method)
        (utils/matches-pattern? (:uri rule) request-uri)))
