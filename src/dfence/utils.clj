@@ -1,6 +1,7 @@
 (ns dfence.utils
   (:require [clojure.string :as string]
-            [cemerick.url :refer [url]]))
+            [cemerick.url :refer [url]]
+            [clojure.string :refer [lower-case]]))
 
 (defn capitalise-all-words
   [s]
@@ -8,11 +9,10 @@
        (map string/capitalize)
        (string/join "-")))
 
-(defn update-when [m k f]
-  (if (get m k)
+(defn update-when [m k pred f]
+  (if (pred (get m k))
     (update m k f)
     m))
-
 
 (defn- replace-first-with [url to-replace replace-with]
   (if (not (empty? to-replace))
@@ -21,9 +21,18 @@
                                   replace-with)
     url))
 
-(defn replace-url-parts [url new-protocol new-host new-port]
-  (let [{:keys [protocol host port]} (url url)]
-    (cond-> url
+(defn location-matches? [test-scheme test-host test-port location]
+  (when (not (empty? location))
+    (let [{:keys [protocol host port]} (url location)]
+      (and (= (lower-case test-scheme) protocol)
+           (= (lower-case test-host) host)
+           (or (= test-port port)
+               (and (= -1 port)
+                    (= 80 test-port)))))))
+
+(defn generate-new-location [location new-protocol new-host new-port]
+  (let [{:keys [protocol host port]} (url location)]
+    (cond-> location
             (empty? protocol)         #(str new-protocol %)
             (not (empty? protocol))   (replace-first-with protocol new-protocol)
             true                      (replace-first-with host new-host)

@@ -1,7 +1,7 @@
 (ns dfence.reverse-proxy
   (:require [clj-http.client :as client]
             [dfence.utils :refer :all]
-            [clojure.string :refer [lower-case]]))
+            [cemerick.url :refer [url]]))
 
 (defn transform-url [{:keys [scheme host port]} {:keys [uri query-string]}]
   (cond-> (str scheme "://" host (when (not (= 80 port)) (str ":" port)) uri)
@@ -12,26 +12,28 @@
           true (assoc "host" (:host target-config))
           true (dissoc "content-length")))
 
-(defn- convert-response-header-name [keywordized-name]
+(defn- capitalise [keywordized-name]
   (-> keywordized-name
-      clojure.core/name
+      name
       capitalise-all-words))
 
-(defn- convert-response-headers [headers]
+(defn- capitalise-header-names [headers]
   (into {} (for [[k v] headers]
-             [(convert-response-header-name k) v])))
+             [(capitalise k) v])))
 
 (defn- replace-with-dfence-server-location [{:keys [scheme host port]} old-location]
-  (replace-url-parts old-location scheme host port))
+  (generate-new-location old-location scheme host port))
 
-(defn- convert-location-if-moved-permanently [config headers]
+(defn- convert-location-if-moved-permanently [headers {dfence-server :dfence-server {:keys [scheme host port]} :api-server}]
   (update-when headers
                "Location"
-               (partial replace-with-dfence-server-location (:dfence-server config))))
+               (partial location-matches? scheme host port)
+               (partial replace-with-dfence-server-location dfence-server)))
 
-(defn- prepare-response-headers [headers config]
-  (convert-location-if-moved-permanently config
-                                         (convert-response-headers headers)))
+(defn- process-response-headers [headers config]
+  (-> headers
+      capitalise-header-names
+      (convert-location-if-moved-permanently config)))
 
 (defn forward-request [request {:keys [api-server] :as config}]
   (let [{:keys [error status headers body]} (client/request {:url              (transform-url api-server request)
@@ -47,5 +49,5 @@
        :headers {}
        :body (str "dfence failed to forward request to api server at " (:host api-server) ":" (:port api-server) ", and error message is: " error)}
       {:status status
-       :headers (prepare-response-headers headers config)
+       :headers (process-response-headers headers config)
        :body body})))
