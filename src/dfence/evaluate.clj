@@ -9,7 +9,7 @@
 (defn- relevant-rules [rules request-method request-uri]
   (filter #(is-request-related-to-rule? request-method request-uri %) rules))
 
-(defn- relevant-rule-primitives [rule]
+(defn- required-rule-primitives [rule]
   (-> rule
       (dissoc :method :uri)
       (utils/filter-kv keyword? true?)))
@@ -23,12 +23,12 @@
     (if (not (:has-valid-token fact-primitives))
       :authentication-required
       (if (has-common-primitives fact-primitives
-                                 (relevant-rule-primitives rule))
+                                 (required-rule-primitives rule))
         :allow
         :access-denied))))
 
 (defn evaluate-rules [rules {:keys [request-method request-uri] :as facts}]
-  (let [relevant-rules (relevant-rules rules request-method request-uri)]
-    (if (empty? relevant-rules)
+  (let [applicable-rules (relevant-rules rules request-method request-uri)]
+    (if (empty? applicable-rules)
       :allow
-      (some #(eval-rule facts %) relevant-rules))))
+      (some #(eval-rule facts %) applicable-rules))))
