@@ -1,3 +1,3 @@
-HTTP Method,URI,Is-service,ROLE1,ROLE2,Has-valid-token
-*,/ip,X,,X,
-POST,/add-response,X,,,
+HTTP Method,URI,Is-service,ROLE1,ROLE2,Has-valid-token,username
+*,/ip,X,,X,,
+POST,/add-response,X,,,,"memberService, advisorService"

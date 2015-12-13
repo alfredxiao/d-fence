@@ -22,3 +22,4 @@ Stories:
 15. can specified data facts
 16. can create data facts
 17. allow data facts to be used in rules
+18. have an endpoint to display current rules/config
