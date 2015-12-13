@@ -1,5 +1,7 @@
 (ns dfence.web-server
   (:require [ring.adapter.jetty :refer [run-jetty]]
+            [ring.middleware.params :refer [wrap-params]]
+            [ring.middleware.keyword-params :refer [wrap-keyword-params]]
             [dfence.reverse-proxy :as proxy]
             [dfence.evaluate :as evaluate]
             [dfence.fact :as fact]))
@@ -7,7 +9,8 @@
 ; show config and ruleset
 
 (defn app-handler [config rules request]
-  (let [facts (fact/parse-facts request)
+  (let [facts (fact/parse-facts (dissoc request :body)
+                                (get-in config [:dfence-server :token-prefix]))
         outcome (evaluate/evaluate-rules rules facts)]
     (case outcome
       :allow (proxy/forward-request request config)
@@ -31,7 +34,9 @@
   (prn "Starting dfence server (which is jetty)...")
   (reset! server
           (run-jetty
-            (partial app-handler config rules)
+            (-> (partial app-handler config rules)
+                (wrap-keyword-params)
+                (wrap-params))
             { :join? false
               :ssl? (get-in config [:dfence-server :ssl?] false)
               :host (get-in config [:dfence-server :host] "localhost")

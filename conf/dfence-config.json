@@ -5,7 +5,8 @@
     "ssl?": false,
     "host": "localhost",
     "message-forbidden": "Access Denied",
-    "message-unauthenticated": "Authentication Required"
+    "message-unauthenticated": "Authentication Required",
+    "token-prefix": "Token"
   },
   "api-server": {
     "scheme": "https",
