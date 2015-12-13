@@ -6,29 +6,30 @@
   (and (utils/matches-pattern? (:method rule) request-method)
        (utils/matches-pattern? (:uri rule) request-uri)))
 
-(defn- relevant-rules [rules request-method request-uri]
+(defn- applicable-rules [rules request-method request-uri]
   (filter #(is-request-related-to-rule? request-method request-uri %) rules))
 
-(defn- required-rule-primitives [rule]
+(defn- required-asserts [rule]
   (-> rule
       (dissoc :method :uri)
       (utils/filter-kv keyword? true?)))
 
-(defn- has-common-primitives [fact-primitives rule-primitives]
-  (not (empty? (intersection (set fact-primitives)
-                             (set rule-primitives)))))
+(defn- has-common-asserts? [user-asserts required-asserts]
+  (not (empty? (intersection (set user-asserts)
+                             (set required-asserts)))))
 
 (defn eval-rule [facts rule]
-  (let [fact-primitives (:primitives facts)]
-    (if (not (:has-valid-token fact-primitives))
+  (let [user-asserts (:asserts facts)]
+    (prn "user-asserts" user-asserts)
+    (if (not (:has-valid-token user-asserts))
       :authentication-required
-      (if (has-common-primitives fact-primitives
-                                 (required-rule-primitives rule))
+      (if (has-common-asserts? user-asserts
+                               (required-asserts rule))
         :allow
         :access-denied))))
 
 (defn evaluate-rules [rules {:keys [request-method request-uri] :as facts}]
-  (let [applicable-rules (relevant-rules rules request-method request-uri)]
-    (if (empty? applicable-rules)
+  (let [rules-to-eval (applicable-rules rules request-method request-uri)]
+    (if (empty? rules-to-eval)
       :allow
-      (some #(eval-rule facts %) applicable-rules))))
+      (some #(eval-rule facts %) rules-to-eval))))

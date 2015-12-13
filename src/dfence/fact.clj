@@ -2,6 +2,7 @@
   (:require [clj-time.format :as format]
             [clj-time.core :as time]
             [dfence.jwt :as jwt]
+            [dfence.utils :refer [lower-case-keyword]]
             [clojure.string :refer [trim upper-case lower-case]]))
 
 (def date-format      (format/formatter "yyyy-MM-dd" (time/default-time-zone) ))
@@ -15,12 +16,13 @@
           (subs (.length token-prefix))
           trim))))
 
-(defn- parse-token-facts [token]
+(defn- parse-token-asserts [token]
   (when token
-    (let [payload (jwt/parse-token token)]
-      {:has-valid-token true
-       :roles           (mapv lower-case (:flags payload))
-       :payload         payload})))
+    (let [payload (jwt/parse-token token)
+          roles (mapv lower-case-keyword (:flags payload))]
+      (merge {:has-valid-token true}
+             (zipmap roles
+                     (repeat true))))))
 
 (defn parse-facts [request token-prefix]
   (let [now (time/now)]
@@ -33,4 +35,4 @@
                 :date           (format/unparse date-format now)
                 :time           (format/unparse time-format now)
                 :week-day       (format/unparse week-day-format now)})
-        (merge (parse-token-facts (extract-token request token-prefix))))))
+        (assoc :asserts (parse-token-asserts (extract-token request token-prefix))))))
