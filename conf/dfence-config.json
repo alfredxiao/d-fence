@@ -1,0 +1,15 @@
+{
+  "dfence-server": {
+    "scheme": "http",
+    "port": 8080,
+    "ssl?": false,
+    "host": "localhost",
+    "message-forbidden": "Access Denied",
+    "message-unauthenticated": "Authentication Required"
+  },
+  "api-server": {
+    "scheme": "https",
+    "host": "httpbin.org",
+    "port": 443
+  }
+}

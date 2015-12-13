@@ -4,6 +4,8 @@
             [dfence.evaluate :as evaluate]
             [dfence.fact :as fact]))
 
+; show config and ruleset
+
 (defn app-handler [config rules request]
   (let [facts (fact/parse-facts request)
         outcome (evaluate/evaluate-rules rules facts)]
@@ -31,7 +33,7 @@
           (run-jetty
             (partial app-handler config rules)
             { :join? false
-              :ssl? false
+              :ssl? (get-in config [:dfence-server :ssl?] false)
               :host (get-in config [:dfence-server :host] "localhost")
               :port (get-in config [:dfence-server :port] 8080)}))
   (prn "dfence server started."))

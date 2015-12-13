@@ -65,3 +65,5 @@
           (when (and (kp k)
                      (vp v))
             [k v]))))
+
+(def lower-case-keyword (comp keyword lower-case))

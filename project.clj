@@ -9,6 +9,7 @@
                  [ring/ring-jetty-adapter "1.4.0"]
                  [clj-time "0.11.0"]
                  [org.clojure/data.csv "0.1.3"]
+                 [cheshire "5.5.0"]
                  [com.nimbusds/nimbus-jose-jwt "4.10"]]
   :main ^:skip-aot dfence.main
 )
