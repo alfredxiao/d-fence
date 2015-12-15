@@ -1,4 +1,4 @@
-# dfence
+# d-fence
 
 A Clojure application designed to server as a web protection tier for an API service backend.
 
