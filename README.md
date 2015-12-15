@@ -1,9 +1,13 @@
 # d-fence
 
-A Clojure application designed to server as a web protection tier for an API service backend.
+A Clojure application - which runs as a reverse proxy - designed to serve as a protection layer of an API service backend. It does so by using security access matrix configured by users or developers while making use of jwt token containing claims about API consumers.
 
 ## Usage
-Author security rules, run the jar file and point it to your config files containing rule specification.
+Author security access rules in the form of a matrix specified as config files used by the application, listening on an HTTP/S port, serving the API consumer client.
+e.g.
+| Method | URI      | is-service | role1 | role2 |
+| GET    | /detail  | X          | X     |       |
+| POST   | /add     | X          |       | X     |
 
 ## License
 
