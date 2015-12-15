@@ -6,6 +6,7 @@ A Clojure application - which runs as a reverse proxy - designed to serve as a p
 Author security access rules in the form of a matrix specified as config files used by the application, listening on an HTTP/S port, serving the API consumer client.
 e.g.
 | Method | URI      | is-service | role1 | role2 |
+| -------|:--------:|:----------:|:-----:|------:|
 | GET    | /detail  | X          | X     |       |
 | POST   | /add     | X          |       | X     |
 
