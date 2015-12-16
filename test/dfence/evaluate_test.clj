@@ -5,7 +5,7 @@
 (def any-ip-rule    {:method "*"       :uri "/ip"           :is-service nil  :has-valid-token true})
 (def post-rule      {:method "POST"    :uri "/post/typea"   :is-service true :has-valid-token nil})
 (def put-rule       {:method "PUT"     :uri "/put/*/data"   :is-service true :has-valid-token nil})
-(def delete-rule    {:method "DELETE"  :uri "/delete/a?"    :is-service true :has-valid-token nil})
+(def delete-rule    {:method "DELETE"  :uri "/delete/a?"    :is-service nil  :has-valid-token nil :service-name ["service1" "service2"]})
 
 (def sample-rules [any-ip-rule post-rule put-rule delete-rule])
 
@@ -23,5 +23,8 @@
        :allow                   {:request-method "POST"  :request-uri "/post/typea"   :asserts {:has-valid-token true  :is-service true }}
        :access-denied           {:request-method "POST"  :request-uri "/post/typea"   :asserts {:has-valid-token true  :is-service false }}
        :authentication-required {:request-method "POST"  :request-uri "/post/typea"   :asserts {:has-valid-token false :is-service true }}
-       :access-denied           {:request-method "PUT"   :request-uri "/put/123/data" :asserts {:has-valid-token true  :is-service false}}))
+       :access-denied           {:request-method "PUT"   :request-uri "/put/123/data" :asserts {:has-valid-token true  :is-service false}}
+       :access-denied           {:request-method "DELETE" :request-uri "/delete/a2"   :asserts {:has-valid-token true  :is-service true :service-name "service3"}}
+       :allow                   {:request-method "DELETE" :request-uri "/delete/a2"   :asserts {:has-valid-token true  :is-service true :service-name "service1"}}
+       :allow                   {:request-method "DELETE" :request-uri "/delete/a2"   :asserts {:has-valid-token true  :is-service true :service-name "service2"}}))
 

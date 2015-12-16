@@ -10,20 +10,21 @@
   (filter #(is-request-related-to-rule? request-method request-uri %) rules))
 
 (defn- required-asserts [rule]
-  (-> rule
-      (dissoc :method :uri)
-      (utils/filter-kv keyword? true?)))
+  (let [terms (dissoc rule :method :uri)]
+    (into #{} (apply concat (for [[k v] terms :when (not (nil? v))]
+                              (cond
+                                (true? v) [[k v]]
+                                (sequential? v) (mapv #(identity [k %]) v)))))))
 
 (defn- has-common-asserts? [user-asserts required-asserts]
-  (not (empty? (intersection (set user-asserts)
-                             (set required-asserts)))))
+  (not (empty? (intersection user-asserts
+                             required-asserts))))
 
 (defn eval-rule [facts rule]
   (let [user-asserts (:asserts facts)]
-    (prn "user-asserts" user-asserts)
     (if (not (:has-valid-token user-asserts))
       :authentication-required
-      (if (has-common-asserts? user-asserts
+      (if (has-common-asserts? (set user-asserts)
                                (required-asserts rule))
         :allow
         :access-denied))))
