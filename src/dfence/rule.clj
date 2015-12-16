@@ -22,14 +22,19 @@
   (let [assert (trim raw-string)]
     (cond
       (empty? assert) nil
-      (contains? #{"Y" "YES" "X" "TRUE"} (upper-case assert)) true
+      (contains? #{"X" "x"} (upper-case assert)) true
+      (.equalsIgnoreCase assert "Required") :required
       :else (mapv trim (split assert #",")))))
 
 (defn- parse-rule [[_ _ & assert-names] [method uri & asserts]]
-  (merge {:method method
+  (let [parsed (merge {:method method
           :uri uri}
          (zipmap (map lower-case-keyword assert-names)
-                 (map assert-value asserts))))
+                 (map assert-value asserts)))]
+    (assoc parsed :how-to-match
+                  (if (contains? (set (vals parsed)) :required)
+                    :all
+                    :any))))
 
 (defn- parse-rule-set [[assert-names & rules]]
   (map (partial parse-rule assert-names)

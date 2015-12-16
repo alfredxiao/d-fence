@@ -12,4 +12,13 @@
                  [cheshire "5.5.0"]
                  [com.nimbusds/nimbus-jose-jwt "4.10"]]
   :main ^:skip-aot dfence.main
-)
+  :repositories ^:replace [["releases" {:url "http://spvx10419.hq.local:8081/nexus/content/repositories/releases/" :snapshots false}]
+                           ["snapshots" {:url       "http://spvx10419.hq.local:8081/nexus/content/repositories/snapshots/"
+                                         :snapshots true
+                                         :update :always}]
+                           ["clojars" {:url       "http://spvx10419.hq.local:8081/nexus/content/repositories/clojars.org/"
+                                       :name "clojars"}]
+                           ["maven" {:url       "http://spvx10419.hq.local:8081/nexus/content/repositories/central/"
+                                     :name "maven"}]]
+
+  )
