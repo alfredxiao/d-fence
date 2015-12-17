@@ -11,7 +11,7 @@
 (defn app-handler [config rules request]
   (let [facts (fact/parse-facts (dissoc request :body)
                                 (get-in config [:dfence-server :token-prefix]))
-        outcome (evaluate/evaluate-rules rules facts)]
+        outcome (evaluate/evaluate-rules rules facts (:api-server config))]
     (case outcome
       :allow (proxy/forward-request request config)
       :authentication-required {:status 401

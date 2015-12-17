@@ -80,7 +80,7 @@
 
 (defn- param-part [a-part p-part]
   (when (.startsWith p-part ":")
-    [(subs p-part 1) a-part]))
+    [(keyword (subs p-part 1)) a-part]))
 
 (defn uri-match [pattern actual]
   (let [actual-parts (clojure.string/split (subs actual 1) #"/")

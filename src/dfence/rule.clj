@@ -26,24 +26,28 @@
       (.equalsIgnoreCase assert "Required") true
       :else (remove nil? (mapv trim (split assert #","))))))
 
-(defn- parse-rule [[_ _ & assert-names] [method uri & asserts]]
-  (let [parsed (merge {:method method
-                       :uri uri}
-                      (let [all (zipmap (map lower-case-keyword assert-names)
-                                       (map assert-value asserts))]
-                        (into {} (for [[k v] all]
-                                   (when v [k v])))))]
-    (assoc parsed :dfence-matcher
-                  (if (some #(.equalsIgnoreCase "Required" %) asserts)
-                    :all
-                    :any))))
+(defn- normalize-term-name [term-name data-fact-terms]
+  (if (contains? (set data-fact-terms) term-name)
+    (keyword (str "data:" (name term-name)))
+    term-name))
 
-(defn- parse-rule-set [[assert-names & rules]]
-  (map (partial parse-rule assert-names)
+(defn- parse-rule [[_ _ & assert-names] data-fact-terms [method uri & asserts]]
+  (merge {:method method
+          :uri    uri}
+         (let [all (zipmap (map lower-case-keyword assert-names)
+                           (map assert-value asserts))]
+           (into {} (for [[k v] all]
+                      (when v [(normalize-term-name k data-fact-terms)
+                               (if (= :matching-rule k)
+                                 (lower-case-keyword (first v))
+                                 v)]))))))
+
+(defn- parse-rule-set [[term-names & rules] data-fact-terms]
+  (map (partial parse-rule term-names data-fact-terms)
        (take-while #(-> %
                         first
                         (not= ""))
                    rules)))
 
-(defn parse-rule-set! [filepath]
-  (parse-rule-set (read-csv-file filepath)))
+(defn parse-rule-set! [filepath data-fact-terms]
+  (parse-rule-set (read-csv-file filepath) data-fact-terms))

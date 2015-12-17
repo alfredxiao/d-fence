@@ -13,7 +13,7 @@
     "host": "localhost",
     "port": 9090,
     "facts": {
-      "staff-flag": "/facts/member-detail/:id/staff-flag"
+      "staff-flag": "/facts/member-attributes/:id/staff-flag"
     }
   }
 }
