@@ -23,7 +23,7 @@
     (cond
       (empty? assert) nil
       (contains? #{"X" "x"} (upper-case assert)) true
-      (.equalsIgnoreCase assert "Required") :required
+      (.equalsIgnoreCase assert "Required") true
       :else (mapv trim (split assert #",")))))
 
 (defn- parse-rule [[_ _ & assert-names] [method uri & asserts]]
@@ -31,8 +31,8 @@
           :uri uri}
          (zipmap (map lower-case-keyword assert-names)
                  (map assert-value asserts)))]
-    (assoc parsed :how-to-match
-                  (if (contains? (set (vals parsed)) :required)
+    (assoc parsed :dfence-matcher
+                  (if (some #(.equalsIgnoreCase "Required" %) asserts)
                     :all
                     :any))))
 
