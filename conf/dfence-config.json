@@ -6,7 +6,7 @@
     "host": "localhost",
     "message-forbidden": "Access Denied",
     "message-unauthenticated": "Authentication Required",
-    "token-prefix": "Token"
+    "token-prefix": "ioof-token"
   },
   "api-server": {
     "scheme": "https",

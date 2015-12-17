@@ -19,8 +19,10 @@
 (defn- parse-token-asserts [token]
   (when token
     (let [payload (jwt/parse-token token)
-          roles (mapv lower-case-keyword (:flags payload))]
-      (merge {:has-valid-token true}
+          roles (mapv keyword (:flags payload))]
+      (merge {:has-valid-token true
+              :is-service (-> payload :tokenInformation :service)
+              :account (-> payload :sub)}
              (zipmap roles
                      (repeat true))))))
 
