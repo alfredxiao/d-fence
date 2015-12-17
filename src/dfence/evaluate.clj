@@ -65,6 +65,8 @@
         :access-denied))))
 
 (defn evaluate-rules [rules {:keys [request-method request-uri] :as facts} api-server-config]
+  (prn "rules" rules)
+  (prn "user facts" facts)
   (let [rules-to-eval (applicable-rule-and-params rules request-method request-uri)]
     (if (empty? rules-to-eval)
       :allow

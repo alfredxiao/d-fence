@@ -21,8 +21,9 @@
     (let [payload (jwt/parse-token token)
           roles (mapv keyword (:flags payload))]
       (merge {:has-valid-token true
-              :is-service (-> payload :tokenInformation :service)
-              :account (-> payload :sub)}
+              :is-service (or (:service payload) (-> payload :tokeninformation :service))
+              :is-user (.equalsIgnoreCase "USER" (:role payload))
+              :account-name (-> payload :sub)}
              (zipmap roles
                      (repeat true))))))
 

@@ -1,5 +1,5 @@
-HTTP Method,URI,Matching-rule,Is-service,Staff-Role,Non-Staff-Role,Has-valid-token,account,staff-flag
-*,/ip,ANY,,,X,,axx001,
-POST,/add-response,ALL,X,,,,"memberService, advisorService",
-POST,/update/:id,ALL,,,,,axx001,TRUE
-POST,/update/:id,ALL,,,,,,FALSE
+HTTP Method,URI,matching-rule,account-name,is-user,is-service,STAFF_ROLE,NON_STAFF_ROLE,staff-flag
+GET,/payer-bank-details/*,ALL,"rolloverService, contributionService",,X,,,
+GET,/fund-validation-register-list,ANY,,X,X,,,
+POST,/update-member/:id,ALL,,,,X,,TRUE
+POST,/update-member/:id,ALL,,,,,X,FALSE
