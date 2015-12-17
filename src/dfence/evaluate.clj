@@ -9,23 +9,41 @@
 (defn- applicable-rules [rules request-method request-uri]
   (filter #(is-request-related-to-rule? request-method request-uri %) rules))
 
-(defn- required-asserts [rule]
-  (let [terms (dissoc rule :method :uri)]
-    (into #{} (apply concat (for [[k v] terms :when (not (nil? v))]
+(defn- rule-asserts [rule]
+  (let [asserts (dissoc rule :method :uri :dfence-matcher)]
+    asserts
+    #_(into #{} (apply concat (for [[k v] asserts :when (not (nil? v))]
                               (cond
                                 (true? v) [[k v]]
                                 (sequential? v) (mapv #(identity [k %]) v)))))))
 
-(defn- has-common-asserts? [user-asserts required-asserts]
-  (not (empty? (intersection user-asserts
-                             required-asserts))))
+(defn- assert-is-satisfied? [user-asserts [term required-value]]
+  (cond
+        (nil? required-value) false
+        (true? required-value) (= required-value (get user-asserts term))
+        (sequential? required-value) (contains? (set required-value) (get user-asserts term))
+        ))
+
+(defn- match-asserts [user-asserts rule-asserts matcher]
+  ;(prn "user-asserts" user-asserts)
+  ;(prn "rule-asserts" rule-asserts)
+  ;(prn "matcher" matcher)
+  (let [pass-access-check (partial assert-is-satisfied? user-asserts)]
+    ;(prn "any ha" (some pass-access-check rule-asserts))
+    (case matcher
+      :any (some pass-access-check rule-asserts)
+      :all (every? pass-access-check rule-asserts))))
+
+  #_(not (empty? (intersection user-asserts
+                             rule-asserts)))
 
 (defn eval-rule [facts rule]
   (let [user-asserts (:asserts facts)]
     (if (not (:has-valid-token user-asserts))
       :authentication-required
-      (if (has-common-asserts? (set user-asserts)
-                               (required-asserts rule))
+      (if (match-asserts user-asserts
+                         (rule-asserts rule)
+                         (:dfence-matcher rule))
         :allow
         :access-denied))))
 
