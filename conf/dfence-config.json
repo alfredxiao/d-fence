@@ -9,8 +9,11 @@
     "token-prefix": "ioof-token"
   },
   "api-server": {
-    "scheme": "https",
-    "host": "httpbin.org",
-    "port": 443
+    "scheme": "http",
+    "host": "localhost",
+    "port": 9090,
+    "facts": {
+      "staff-flag": "/facts/member-detail/:id/staff-flag"
+    }
   }
 }

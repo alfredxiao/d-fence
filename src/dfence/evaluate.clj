@@ -4,7 +4,7 @@
 
 (defn- is-request-related-to-rule? [request-method request-uri rule]
   (and (utils/matches-pattern? (:method rule) request-method)
-       (utils/matches-pattern? (:uri rule) request-uri)))
+       (first (utils/uri-match (:uri rule) request-uri))))
 
 (defn- applicable-rules [rules request-method request-uri]
   (filter #(is-request-related-to-rule? request-method request-uri %) rules))

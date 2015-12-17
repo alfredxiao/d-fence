@@ -1,3 +1,5 @@
-HTTP Method,URI,Matching-rule,Is-service,ROLE1,ROLE2,Has-valid-token,account
-*,/ip,ANY,,,X,,axx001
-POST,/add-response,ALL,X,,,,"memberService, advisorService"
+HTTP Method,URI,Matching-rule,Is-service,Staff-Role,Non-Staff-Role,Has-valid-token,account,staff-flag
+*,/ip,ANY,,,X,,axx001,
+POST,/add-response,ALL,X,,,,"memberService, advisorService",
+POST,/update/:id,ALL,,X,,,,TRUE
+POST,/update/:id,ALL,,,X,,,FALSE

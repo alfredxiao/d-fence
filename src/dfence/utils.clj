@@ -67,3 +67,30 @@
             [k v]))))
 
 (def lower-case-keyword (comp keyword lower-case))
+
+; /update/123   /update/:id     -> True, {:id "123"}
+; /update/123   /update/123     -> True, {}
+; /update/123   /update/abc     -> False, {}
+; /update/123   /update/abc/def -> False, {}
+
+(defn- part-matched [a-part p-part]
+  (or (= a-part p-part)
+      (.startsWith p-part ":")
+      (= "*" p-part)))
+
+(defn- param-part [a-part p-part]
+  (when (.startsWith p-part ":")
+    [(subs p-part 1) a-part]))
+
+(defn uri-match [pattern actual]
+  (let [actual-parts (clojure.string/split (subs actual 1) #"/")
+        pattern-parts (clojure.string/split (subs pattern 1) #"/")]
+
+    (let [matched? (and (= (count actual-parts)
+                           (count pattern-parts))
+                        (every? #(part-matched (first %) (second %)) (zipmap actual-parts pattern-parts)))
+          params (if matched?
+                   (into {} (for  [[k v] (zipmap actual-parts pattern-parts)]
+                              (param-part k v)))
+                   {})]
+      [matched? params])))

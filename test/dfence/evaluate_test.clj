@@ -5,7 +5,7 @@
 (def any-ip-rule    {:dfence-matcher :any :method "*"       :uri "/ip"           :has-valid-token true})
 (def post-rule      {:dfence-matcher :any :method "POST"    :uri "/post/typea"   :is-service true})
 (def put-rule       {:dfence-matcher :any :method "PUT"     :uri "/put/*/data"   :is-service true})
-(def delete-rule    {:dfence-matcher :any :method "DELETE"  :uri "/delete/a?"    :service-name ["service1" "service2"]})
+(def delete-rule    {:dfence-matcher :any :method "DELETE"  :uri "/delete/a2"    :service-name ["service1" "service2"]})
 (def all-rule       {:dfence-matcher :all :method "GET"     :uri "/sensitive"    :is-service true  :has-valid-token true :service-name ["service1" "service2"]})
 
 (def sample-rules-any-matcher [any-ip-rule post-rule put-rule delete-rule])
