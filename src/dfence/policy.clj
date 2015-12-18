@@ -2,47 +2,47 @@
   (:require [clojure.data.csv :as csv]
             [clojure.java.io :as io]
             [clojure.string :refer [upper-case trim split]]
-            [dfence.utils :refer [lower-case-keyword]]))
+            [dfence.utils :refer [lower-case-keyword remove-kv]]))
 
 (defn- read-csv-file [filepath]
   (with-open [in-file (io/reader filepath)]
     (doall
       (csv/read-csv in-file))))
 
-(defn- assert-value [raw-string]
-  (let [assert (trim raw-string)]
-    (cond
-      (empty? assert) nil
-      (contains? #{"X" "x"} (upper-case assert)) true
-      (.equalsIgnoreCase assert "Required") true
-      :else (remove nil? (mapv trim (split assert #","))))))
+(defn- enumeration
+  "Parses raw string value into a list of value split by ','"
+  [required-value]
+  (->> (split required-value #",")
+       (mapv trim)
+       (remove nil?)))
 
-(defn- normalize-term-name [term-name data-fact-terms]
-  (if (contains? (set data-fact-terms) term-name)
-    (keyword (str "data:" (name term-name)))
-    term-name))
+(defn- normalise
+  "Normalise raw required value into standardised value(s), which consists of
+   three categories: nil, true/false, [name1, name2]"
+  [required-value]
+  (let [trimmed-value (trim required-value)]
+    (cond
+      (empty? trimmed-value) nil
+      (contains? #{"X" "x"} trimmed-value) true
+      (contains? #{"-"} trimmed-value) false
+      :else (enumeration trimmed-value))))
 
 (defn- parse-one-policy
   "Parse one policy csv line, matching policy contents with policy header names
   and take into account some custom-defined data facts used as part of policy
-  declaration"
-  [[_ _ _ & header-names]
-   defined-data-facts
-   [method uri matching-rule & asserts]]
-  (merge {:method         method
-          :uri            uri
-          :matching-rule  (lower-case-keyword matching-rule)}
-         (let [all (zipmap (map lower-case-keyword header-names)
-                           (map assert-value asserts))]
-           (into {} (for [[k v] all]
-                      (when v [(normalize-term-name k defined-data-facts)
-                               (if (= :matching-rule k)
-                                 (lower-case-keyword (first v))
-                                 v)]))))))
+  declaration. It should remove those requirement entries with nil value"
+  [[_      _   _             & requirement-names]
+   [method uri matching-rule & required-values]]
+  (-> {:method         method
+       :uri            uri
+       :matching-rule  (lower-case-keyword matching-rule)}
+      (merge (zipmap (map lower-case-keyword requirement-names)
+                     (map normalise required-values)))
+      (remove-kv identity nil?)))
 
-(defn- parse-policy-csv [[header-names & unparsed-policy-lines] defined-data-facts]
-  (map (partial parse-one-policy header-names defined-data-facts)
+(defn- parse-policy-csv [[header-names & unparsed-policy-lines]]
+  (map (partial parse-one-policy header-names)
        (remove (comp empty? first) unparsed-policy-lines)))
 
-(defn parse-policy-file! [filepath defined-data-facts]
-  (parse-policy-csv (read-csv-file filepath) defined-data-facts))
+(defn parse-policy-file! [filepath]
+  (parse-policy-csv (read-csv-file filepath)))

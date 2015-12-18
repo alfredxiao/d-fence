@@ -16,6 +16,5 @@
   3. defaults to ./conf/dfence-config.json and .conf/dfence-policies.csv"
   [& args]
   (let [config (load-config! (environ/env "dfence-config" "./conf/dfence-config.json"))
-        rules (policy/parse-policy-file! (environ/env "dfence-policies" "./conf/dfence-policies.csv")
-                                         (-> config :api-server :facts keys))]
+        rules (policy/parse-policy-file! (environ/env "dfence-policies" "./conf/dfence-policies.csv"))]
     (web-server/start-jetty config rules)))

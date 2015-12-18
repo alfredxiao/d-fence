@@ -57,14 +57,13 @@
 (defn matches-pattern? [wildcard-str actual-str]
   (re-matches (wildcard-to-re-pattern wildcard-str) actual-str))
 
-(defn filter-kv
-  "Filter a map by key pred and value pred"
-  [m kp vp]
-  (into {}
-        (for [[k v] m]
-          (when (and (kp k)
-                     (vp v))
-            [k v]))))
+(defn remove-kv
+  "Remove map entries by key predicate and value predicate"
+  [m key-pred value-pred]
+  (into {} (for [[k v] m]
+             (when-not (and (key-pred k)
+                            (value-pred v))
+               [k v]))))
 
 (def lower-case-keyword (comp keyword lower-case))
 
