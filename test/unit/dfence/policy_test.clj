@@ -1,6 +1,6 @@
-(ns unit.dfence.rule-test
+(ns unit.dfence.policy-test
   (:require [clojure.test :refer :all]
-            [dfence.rule :as subject]))
+            [dfence.policy :as subject]))
 
 (def rules-csv [["Http Method"  "uri"         "Matching-Rule" "Is-service"  "has-Valid-Token" "ROLE1"     "Role2"     "username"            "staff-flag"]
                 ["*"            "/ip"         "ALL"           ""            "Required"        ""          "Required"  ""                    "TRUE"]
@@ -14,4 +14,4 @@
                    {:method "DELETE"  :uri "/delete/a?"  :matching-rule :all :is-service true                             :role1 true                         :username ["service1" "Service2"]  :data:staff-flag ["FALSE"]}])
 
 (testing "Parsing rules"
-  (is (= parsed-rules (#'subject/parse-rule-set rules-csv [:staff-flag]))))
+  (is (= parsed-rules (#'subject/parse-policy-csv rules-csv [:staff-flag]))))

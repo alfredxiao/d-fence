@@ -66,7 +66,7 @@
                      (vp v))
             [k v]))))
 
-(def keywordise-in-lower-case (comp keyword lower-case))
+(def lower-case-keyword (comp keyword lower-case))
 
 ; /update/123   /update/:id     -> True, {:id "123"}
 ; /update/123   /update/123     -> True, {}
