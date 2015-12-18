@@ -1,4 +1,4 @@
-(ns dfence.rule-test
+(ns unit.dfence.rule-test
   (:require [clojure.test :refer :all]
             [dfence.rule :as subject]))
 

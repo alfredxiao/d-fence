@@ -1,14 +1,13 @@
 (ns dfence.main
   (:require [dfence.web-server :as web-server]
             [dfence.rule :as rule-parser]
-            [dfence.evaluate :as evaluate]
             [environ.core :as environ]
             [cheshire.core :as json]
-            [dfence.utils :refer [lower-case-keyword]])
+            [dfence.utils :refer [keywordise-in-lower-case]])
   (:gen-class))
 
 (defn- load-config! [filepath]
-  (json/parse-string (slurp filepath) lower-case-keyword))
+  (json/parse-string (slurp filepath) keywordise-in-lower-case))
 
 (defn -main
   "Loads config and rules from specified path in the following order:

@@ -2,7 +2,7 @@
   (:require [clj-time.format :as format]
             [clj-time.core :as time]
             [dfence.jwt :as jwt]
-            [dfence.utils :refer [lower-case-keyword]]
+            [dfence.utils :refer [keywordise-in-lower-case]]
             [clojure.string :refer [trim upper-case lower-case]]))
 
 (def date-format      (format/formatter "yyyy-MM-dd" (time/default-time-zone) ))

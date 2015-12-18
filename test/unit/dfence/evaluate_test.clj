@@ -1,4 +1,4 @@
-(ns dfence.evaluate-test
+(ns unit.dfence.evaluate-test
   (:require [clojure.test :refer :all]
             [dfence.evaluate :as subject]))
 
