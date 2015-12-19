@@ -1,9 +1,9 @@
-(ns dfence.jwt
+(ns dfence.utils.jwt
   (:require [cheshire.core :as json]
-            [dfence.utils :refer [lower-case-keyword]])
+            [dfence.utils.common-utils :refer [lower-case-keyword]])
   (:import [com.nimbusds.jose JWSObject]))
 
-(defn parse-token [token]
+(defn parse-jwt-token [token]
   (let [jws (JWSObject/parse token)
         payload-str (.toString (.getPayload jws))
         payload (json/parse-string payload-str lower-case-keyword) ]

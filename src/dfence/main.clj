@@ -3,7 +3,7 @@
             [dfence.policy :as policy]
             [environ.core :as environ]
             [cheshire.core :as json]
-            [dfence.utils :refer [lower-case-keyword]])
+            [dfence.utils.common-utils :refer [lower-case-keyword]])
   (:gen-class))
 
 (defn- load-config! [filepath]

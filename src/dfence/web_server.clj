@@ -6,8 +6,6 @@
             [dfence.evaluate :as evaluate]
             [dfence.fact :as fact]))
 
-; show config and ruleset
-
 (defn app-handler [config policies request]
   (let [request-facts (fact/parse-facts (dissoc request :body)
                                 (get-in config [:dfence-server :token-prefix]))

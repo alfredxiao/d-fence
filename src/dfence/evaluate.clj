@@ -1,5 +1,5 @@
 (ns dfence.evaluate
-  (:require [dfence.utils :as utils]
+  (:require [dfence.utils.common-utils :refer [uri-match]]
             [clj-http.client :as client]
             [clojure.string :refer [upper-case]]
             [clojure.set :refer [intersection]]))
@@ -10,7 +10,7 @@
   /update/:id and incoming uri as /update/123, enhance policy with a
   parameter map {:id '123'}"
   [request-method request-uri {:keys [method uri] :as policy}]
-  (let [[uri-matches? params] (utils/uri-match uri request-uri)]
+  (let [[uri-matches? params] (uri-match uri request-uri)]
     (when (and (contains? #{"ANY" request-method} method)
                uri-matches?)
       [policy params])))

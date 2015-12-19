@@ -2,7 +2,7 @@
   (:require [clojure.data.csv :as csv]
             [clojure.java.io :as io]
             [clojure.string :refer [upper-case trim split]]
-            [dfence.utils :refer [lower-case-keyword remove-kv]]))
+            [dfence.utils.common-utils :refer [lower-case-keyword remove-kv]]))
 
 (defn- read-csv-file [filepath]
   (with-open [in-file (io/reader filepath)]

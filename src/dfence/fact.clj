@@ -1,8 +1,8 @@
 (ns dfence.fact
   (:require [clj-time.format :as format]
             [clj-time.core :as time]
-            [dfence.jwt :as jwt]
-            [dfence.utils :refer [lower-case-keyword]]
+            [dfence.utils.jwt :refer [parse-jwt-token]]
+            [dfence.utils.common-utils :refer [lower-case-keyword]]
             [clojure.string :refer [trim upper-case lower-case]]))
 
 (def date-format      (format/formatter "yyyy-MM-dd" (time/default-time-zone) ))
@@ -18,7 +18,7 @@
 
 (defn- parse-token-asserts [token]
   (when token
-    (let [payload (jwt/parse-token token)
+    (let [payload (parse-jwt-token token)
           roles (mapv keyword (:flags payload))]
       (merge {:has-valid-token true
               :is-service (or (:service payload) (-> payload :tokeninformation :service))
