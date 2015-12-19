@@ -8,10 +8,10 @@
 
 ; show config and ruleset
 
-(defn app-handler [config rules request]
-  (let [facts (fact/parse-facts (dissoc request :body)
+(defn app-handler [config policies request]
+  (let [request-facts (fact/parse-facts (dissoc request :body)
                                 (get-in config [:dfence-server :token-prefix]))
-        outcome (evaluate/evaluate-rules rules facts (:api-server config))]
+        outcome (evaluate/evaluate-policies policies request-facts (:api-server config))]
     (case outcome
       :allow (proxy/forward-request request config)
       :authentication-required {:status 401
@@ -30,11 +30,11 @@
     (reset! server nil)
     (prn "dfence server stopped.")))
 
-(defn start-jetty [config rules]
+(defn start-jetty [config policies]
   (prn "Starting dfence server (which is jetty)...")
   (reset! server
           (run-jetty
-            (-> (partial app-handler config rules)
+            (-> (partial app-handler config policies)
                 (wrap-keyword-params)
                 (wrap-params))
             { :join? false

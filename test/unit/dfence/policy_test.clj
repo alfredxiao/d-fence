@@ -5,7 +5,7 @@
 (def rules-csv [["Http Method"  "uri"         "Matching-Rule" "Is-service"  "has-Valid-Token" "ROLE1"     "Role2"     "username"            "staff-flag"]
                 ["*"            "/ip"         "ALL"           ""            "x"               ""          "x"         ""                    "TRUE"]
                 ["POST"         "/post/typea" "ANY"           "X"           ""                "X"         "X"         ""                    ""]
-                ["PUT"          "/put/*/data" "ANY"           "X"           ""                "  "        ""          "service1"            ""]
+                ["put"          "/put/*/data" "ANY"           "X"           ""                "  "        ""          "service1"            ""]
                 ["DELETE"       "/delete/a"   "ALL"           "X"           ""                "X"         " "         "service1, Service2"  "FALSE"]])
 
 (def parsed-rules [{:method "*"       :uri "/ip"         :matching-rule :all                     :has-valid-token true                      :role2 true                                          :staff-flag ["TRUE"]}

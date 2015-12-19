@@ -1,23 +1,29 @@
 (ns dfence.evaluate
   (:require [dfence.utils :as utils]
             [clj-http.client :as client]
+            [clojure.string :refer [upper-case]]
             [clojure.set :refer [intersection]]))
 
-(defn- convert-to-rule-with-params [request-method request-uri rule]
-  (let [[uri-matches? uri-params] (utils/uri-match (:uri rule) request-uri)]
-    (when (and (utils/matches-pattern? (:method rule) request-method)
+(defn- enhance-policy-if-appropriate
+  "When request method and URI matches a policy, return the policy with
+  potential enhancement of data fact parameters. e.g. with uri pattern
+  /update/:id and incoming uri as /update/123, enhance policy with a
+  parameter map {:id '123'}"
+  [request-method request-uri {:keys [method uri] :as policy}]
+  (let [[uri-matches? params] (utils/uri-match uri request-uri)]
+    (when (and (contains? #{"ANY" request-method} method)
                uri-matches?)
-      {:rule rule
-       :params uri-params})))
+      [policy params])))
 
-(defn- applicable-rule-and-params [rules request-method request-uri]
-  (remove nil? (map #(convert-to-rule-with-params request-method request-uri %) rules)))
+(defn- relevant-policies-and-params
+  "Filter policies that matches request method and URI, while destructuring
+  data fact parameters if there are any"
+  [policies request-method request-uri]
+  (remove nil? (map (partial enhance-policy-if-appropriate request-method request-uri)
+                    policies)))
 
-(defn- rule-asserts [rule]
-  (dissoc rule :method :uri :matching-rule))
-
-(defn- is-data-fact? [term]
-  (.startsWith (name term) "data:"))
+(defn- is-data-fact? [condition api-server-config]
+  (contains? (set (-> api-server-config :facts keys)) condition))
 
 (defn- apply-params [params uri-part]
   (if-let [matched-param (first (filter #(= (str %) uri-part) (keys params)))]
@@ -28,44 +34,47 @@
   (let [temp-parts (clojure.string/split template #"/")]
     (clojure.string/join "/" (map #(apply-params params %) temp-parts))))
 
-(defn- fetch-fact! [term fact-params api-server-config]
-  (let [configured-term (keyword (subs (str term) 6))
-        url-template (str (:scheme api-server-config) "://"
+(defn- fetch-data-fact! [term fact-params api-server-config]
+  (let [url-template (str (:scheme api-server-config) "://"
                           (:host api-server-config) ":"
                           (:port api-server-config)
-                          (-> api-server-config :facts configured-term))
+                          (-> api-server-config :facts term))
         url (replace-params url-template fact-params)]
     (:body (client/get url))))
 
-(defn- assert-is-satisfied? [user-asserts fact-params api-server-config [term required-value]]
-  (let [with-more-asserts (merge user-asserts
-                                 (when (is-data-fact? term)
-                                   {term (fetch-fact! term fact-params api-server-config)}))]
+(defn- condition-check [user-facts fact-params api-server-config [condition-name required-value]]
+  (let [all-facts (merge user-facts
+                         (when (is-data-fact? condition-name api-server-config)
+                           {condition-name (fetch-data-fact! condition-name fact-params api-server-config)}))]
     (cond
-      (true? required-value) (= required-value (get with-more-asserts term))
-      (sequential? required-value) (contains? (set required-value) (get with-more-asserts term))
-      )))
+      (true? required-value) (= required-value (get all-facts condition-name))
+      (sequential? required-value) (contains? (set required-value) (get all-facts condition-name)))))
 
-(defn- match-asserts [user-asserts api-server-config fact-params rule-asserts matcher]
-  (let [pass-access-check (partial assert-is-satisfied? user-asserts fact-params api-server-config)]
+(defn- evaluate-conditions [required-conditions matcher user-facts fact-params api-server-config]
+  (let [condition-is-met? (partial condition-check user-facts fact-params api-server-config)]
     (case matcher
-      :any (some pass-access-check rule-asserts)
-      :all (every? pass-access-check rule-asserts))))
+      :any (some condition-is-met? required-conditions)
+      :all (every? condition-is-met? required-conditions))))
 
-(defn eval-rule [facts api-server-config {:keys [rule params]}]
-  (let [user-asserts (:asserts facts)]
-    (if (not (:has-valid-token user-asserts))
-      :authentication-required
-      (if (match-asserts user-asserts
-                         api-server-config
-                         params
-                         (rule-asserts rule)
-                         (:matching-rule rule))
-        :allow
-        :access-denied))))
-
-(defn evaluate-rules [rules {:keys [request-method request-uri] :as facts} api-server-config]
-  (let [rules-to-eval (applicable-rule-and-params rules request-method request-uri)]
-    (if (empty? rules-to-eval)
+(defn evaluate-policy [user-facts api-server-config [policy fact-params]]
+  (if (not (:has-valid-token user-facts))
+    :authentication-required
+    (if (evaluate-conditions (dissoc policy :method :uri :matching-rule)
+                             (:matching-rule policy)
+                             user-facts
+                             fact-params
+                             api-server-config)
       :allow
-      (some #(eval-rule facts api-server-config %) rules-to-eval))))
+      :access-denied)))
+
+(defn evaluate-policies
+  "Given user facts/asserts, and given custom-defined data-facts, evaluate all
+  policies and decide whether to 'allow' access or not."
+  [policies
+   {:keys [request-method request-uri user-facts]}
+   api-server-config]
+  (let [policy-and-fact-params (relevant-policies-and-params policies request-method request-uri)]
+    (if (empty? policy-and-fact-params)
+      :allow
+      (some (partial evaluate-policy user-facts api-server-config)
+            policy-and-fact-params))))

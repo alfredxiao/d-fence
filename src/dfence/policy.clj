@@ -33,7 +33,7 @@
   declaration. It should remove those requirement entries with nil value"
   [[_      _   _             & requirement-names]
    [method uri matching-rule & required-values]]
-  (-> {:method         method
+  (-> {:method         (upper-case method)
        :uri            uri
        :matching-rule  (lower-case-keyword matching-rule)}
       (merge (zipmap (map lower-case-keyword requirement-names)

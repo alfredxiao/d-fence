@@ -38,4 +38,4 @@
                 :date           (format/unparse date-format now)
                 :time           (format/unparse time-format now)
                 :week-day       (format/unparse week-day-format now)})
-        (assoc :asserts (parse-token-asserts (extract-token request token-prefix))))))
+        (assoc :user-facts (parse-token-asserts (extract-token request token-prefix))))))
