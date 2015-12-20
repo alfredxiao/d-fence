@@ -1,5 +1,5 @@
 (ns dfence.evaluate
-  (:require [dfence.utils.common-utils :refer [uri-match]]
+  (:require [dfence.utils.url-utils :refer [match-uri]]
             [clj-http.client :as client]
             [clojure.string :refer [upper-case]]
             [clojure.set :refer [intersection]]))
@@ -10,7 +10,7 @@
   /update/:id and incoming uri as /update/123, enhance policy with a
   parameter map {:id '123'}"
   [request-method request-uri {:keys [method uri] :as policy}]
-  (let [[uri-matches? params] (uri-match uri request-uri)]
+  (let [[uri-matches? params] (match-uri uri request-uri)]
     (when (and (contains? #{"ANY" request-method} method)
                uri-matches?)
       [policy params])))
@@ -50,22 +50,12 @@
       (true? required-value) (= required-value (get all-facts condition-name))
       (sequential? required-value) (contains? (set required-value) (get all-facts condition-name)))))
 
-(defn- evaluate-conditions [required-conditions matcher user-facts fact-params api-server-config]
-  (let [condition-is-met? (partial condition-check user-facts fact-params api-server-config)]
-    (case matcher
+(defn evaluate-policy [user-facts api-server-config [policy fact-params]]
+  (let [required-conditions (dissoc policy :method :uri :matching-rule)
+        condition-is-met? (partial condition-check user-facts fact-params api-server-config)]
+    (case (:matching-rule policy)
       :any (some condition-is-met? required-conditions)
       :all (every? condition-is-met? required-conditions))))
-
-(defn evaluate-policy [user-facts api-server-config [policy fact-params]]
-  (if (not (:has-valid-token user-facts))
-    :authentication-required
-    (if (evaluate-conditions (dissoc policy :method :uri :matching-rule)
-                             (:matching-rule policy)
-                             user-facts
-                             fact-params
-                             api-server-config)
-      :allow
-      :access-denied)))
 
 (defn evaluate-policies
   "Given user facts/asserts, and given custom-defined data-facts, evaluate all
@@ -74,7 +64,8 @@
    {:keys [request-method request-uri user-facts]}
    api-server-config]
   (let [policy-and-fact-params (relevant-policies-and-params policies request-method request-uri)]
-    (if (empty? policy-and-fact-params)
-      :allow
-      (some (partial evaluate-policy user-facts api-server-config)
-            policy-and-fact-params))))
+    (cond
+      (empty? policy-and-fact-params) :allow
+      (not (:has-valid-token user-facts)) :authentication-required
+      (some (partial evaluate-policy user-facts api-server-config) policy-and-fact-params) :allow
+      :else :access-denied)))
