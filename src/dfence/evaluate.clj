@@ -43,14 +43,15 @@
     (:body (client/get url))))
 
 (defn- condition-check [user-facts fact-params api-server-config [condition-name required-value]]
-  (let [all-facts (merge user-facts
-                         (when (is-data-fact? condition-name api-server-config)
-                           {condition-name (fetch-data-fact! condition-name fact-params api-server-config)}))]
+  (let [condition-value (or (get user-facts condition-name)
+                            (when (is-data-fact? condition-name api-server-config)
+                              (fetch-data-fact! condition-name fact-params api-server-config)))]
     (cond
-      (true? required-value) (= required-value (get all-facts condition-name))
-      (sequential? required-value) (contains? (set required-value) (get all-facts condition-name)))))
+      (true? required-value) (= true condition-value)
+      (false? required-value) (not condition-value)
+      (set? required-value) (contains? required-value condition-value))))
 
-(defn evaluate-policy [user-facts api-server-config [policy fact-params]]
+(defn- policy-conditions-are-met? [user-facts api-server-config [policy fact-params]]
   (let [required-conditions (dissoc policy :method :uri :matching-rule)
         condition-is-met? (partial condition-check user-facts fact-params api-server-config)]
     (case (:matching-rule policy)
@@ -67,5 +68,5 @@
     (cond
       (empty? policy-and-fact-params) :allow
       (not (:has-valid-token user-facts)) :authentication-required
-      (some (partial evaluate-policy user-facts api-server-config) policy-and-fact-params) :allow
+      (some (partial policy-conditions-are-met? user-facts api-server-config) policy-and-fact-params) :allow
       :else :access-denied)))

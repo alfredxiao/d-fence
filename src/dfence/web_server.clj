@@ -29,7 +29,7 @@
     (prn "dfence server stopped.")))
 
 (defn start-jetty [config policies]
-  (prn "Starting dfence server (which is jetty)...")
+  (prn "dfence server starting ...")
   (reset! server
           (run-jetty
             (-> (partial app-handler config policies)

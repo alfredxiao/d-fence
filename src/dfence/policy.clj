@@ -14,7 +14,8 @@
   [required-value]
   (->> (split required-value #",")
        (mapv trim)
-       (remove nil?)))
+       (remove nil?)
+       set))
 
 (defn- normalise
   "Normalise raw required value into standardised value(s), which consists of
