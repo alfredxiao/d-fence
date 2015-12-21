@@ -7,19 +7,10 @@ Stories:
 [DONE] 5. evaluate rules with regard to primitives (comparing those in rules and those from facts)
 [DONE] 6. fix bug where we replace Location only when it matches backend host/port
 [DONE] 7. remove dependency on cemerick.url
+normalise condition name (where you have role name like STAFF_ROLE)
 
-4. can collect Request facts from token (username, role)
 5. default rule (to deny if no rules are defined)
-6. can parse a default rule (default to deny or grant as specified/configured)
-7. can parse a rule with role fact
-8. can parse a rule with username fact
-9. can parse a rule with ip fact
-10. can parse a rule with weekday/time fact
+9. can parse a rule with facts like IP, weekday/time
 11. allow enumeration of method names
 12. allow enumeration of uri parts (e.g. /api/rollovers/{in|out})
-13. allow wild card
-14. URI destructuring, i.e. creating new facts, e.g. /find-member-detail/{id} => new fact id:223
-15. can specified data facts
-16. can create data facts
-17. allow data facts to be used in rules
 18. have an endpoint to display current rules/config

@@ -7,8 +7,7 @@
             [dfence.fact :as fact]))
 
 (defn app-handler [config policies request]
-  (let [request-facts (fact/parse-facts (dissoc request :body)
-                                (get-in config [:dfence-server :token-prefix]))
+  (let [request-facts (fact/parse-facts (dissoc request :body))
         outcome (evaluate/evaluate-policies policies request-facts (:api-server config))]
     (case outcome
       :allow (proxy/forward-request request config)
