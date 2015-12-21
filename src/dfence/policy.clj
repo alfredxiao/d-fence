@@ -32,12 +32,12 @@
   "Parse one policy csv line, matching policy contents with policy header names
   and take into account some custom-defined data facts used as part of policy
   declaration. It should remove those requirement entries with nil value"
-  [[_      _   _             & requirement-names]
+  [[_      _   _             & condition-names]
    [method uri matching-rule & required-values]]
   (-> {:method         (upper-case method)
        :uri            uri
        :matching-rule  (lower-case-keyword matching-rule)}
-      (merge (zipmap (map lower-case-keyword requirement-names)
+      (merge (zipmap (map lower-case-keyword condition-names)
                      (map normalise required-values)))
       (remove-kv identity nil?)))
 
