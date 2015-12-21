@@ -19,7 +19,7 @@
 (defn- parse-token-asserts [token]
   (when token
     (let [payload (parse-jwt-token token)
-          roles (mapv keyword (:flags payload))]
+          roles (mapv lower-case-keyword (:flags payload))]
       (merge {:has-valid-token true
               :is-service (or (:service payload) (-> payload :tokeninformation :service))
               :is-user (.equalsIgnoreCase "USER" (:role payload))
