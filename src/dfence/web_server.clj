@@ -15,7 +15,7 @@
       :authentication-required {:status 401
                                 :header {"Server" "d-fence v0.01"}
                                 :body (get-in config [:dfence-server :message-unauthenticated])}
-      :access-denied  {:status  403
+      :deny  {:status  403
                        :headers {"Server" "d-fence v0.01"}
                        :body    (get-in config [:dfence-server :message-forbidden])})))
 

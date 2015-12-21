@@ -69,4 +69,4 @@
       (empty? policy-and-fact-params) :allow
       (not (:has-valid-token user-facts)) :authentication-required
       (some (partial policy-conditions-are-met? user-facts api-server-config) policy-and-fact-params) :allow
-      :else :access-denied)))
+      :else :deny)))
