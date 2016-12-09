@@ -9,8 +9,8 @@
   },
   "api-server": {
     "scheme": "http",
-    "host": "localhost",
-    "port": 9090,
+    "host": "www.httpbin.org",
+    "port": 80,
     "facts": {
       "staff-flag": "/facts/member-attributes/:id/staff-flag"
     }

@@ -1,5 +1,1 @@
-HTTP Method,URI,matching-rule,account-name,is-user,is-service,STAFF_ROLE,NON_STAFF_ROLE,staff-flag
-GET,/fund-validation-register-list,ANY,,X,X,,,
-GET,/payer-bank-details/*,ALL,rolloverService,,X,,,
-POST,/update-member/:id,ALL,,,,X,,TRUE
-POST,/update-member/:id,ALL,,,,,X,FALSE
+HTTP Method,URI,matching-rule,account-name
